@@ -37,4 +37,10 @@ public class SwingImagePanel extends JPanel implements ImageDisplay {
         this.image = image.getPrev();
         this.repaint();
     }
+
+    @Override
+    public void show(Image image) {
+        this.image = image;
+        this.repaint();
+    }
 }

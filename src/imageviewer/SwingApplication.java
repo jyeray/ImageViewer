@@ -2,6 +2,7 @@ package imageviewer;
 
 import imageviewer.control.Command;
 import imageviewer.control.NextCommand;
+import imageviewer.control.OpenCommand;
 import imageviewer.control.PrevCommand;
 import imageviewer.persistence.FileImageLoader;
 import java.awt.BorderLayout;
@@ -13,6 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 public class SwingApplication extends JFrame{
@@ -21,13 +25,13 @@ public class SwingApplication extends JFrame{
         new SwingApplication();
     }
 
-    private final String path;
     private final Map<String,Command> commands= new HashMap<>();
     private final SwingImagePanel swingImagePanel;
+    private final FileImageLoader fileImageLoader;
     
     public SwingApplication() {
-        this.path = "C:\\Users\\joaqu\\Documents\\Wallpaper";
-        this.swingImagePanel = new SwingImagePanel(new FileImageLoader(path).read());
+        this.fileImageLoader = new FileImageLoader();
+        this.swingImagePanel = new SwingImagePanel(fileImageLoader.read());
         setCommands();
         deployUI();
     }
@@ -35,6 +39,7 @@ public class SwingApplication extends JFrame{
     private void setCommands() {
         commands.put("next", new NextCommand(swingImagePanel));
         commands.put("prev", new PrevCommand(swingImagePanel));
+        commands.put("open", new OpenCommand(swingImagePanel,fileImageLoader));
     }
 
     private void deployUI() {
@@ -45,6 +50,7 @@ public class SwingApplication extends JFrame{
         this.setPreferredSize(new Dimension(1000, 800));
         this.pack();
         this.getContentPane().add(bottomMenu(), BorderLayout.SOUTH);
+        this.setJMenuBar(menuBar());
         this.setVisible(true);
     }
 
@@ -75,6 +81,34 @@ public class SwingApplication extends JFrame{
             }
         });
         return button;
+    }
+
+    private JMenuBar menuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.add(fileMenu());
+        return menuBar;
+    }
+
+    private JMenu fileMenu() {
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.add(openOperation());
+        return fileMenu;
+    }
+
+    private JMenuItem openOperation() {
+        JMenuItem openItem = new JMenuItem("Open...");
+        openItem.addActionListener(execute("open"));
+        return openItem;
+    }
+
+    private ActionListener execute(String command) {
+        return new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                commands.get(command).execute();
+            }
+        };
     }
 
 }

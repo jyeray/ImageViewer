@@ -5,25 +5,44 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FileImageLoader implements ImageLoader{
 
-    private final File[] files;
+    private File[] files;
+    private final static String[] ImageExtensions = {"jpg","jpeg","gif","png"};
 
-    public FileImageLoader(String path) {
+    public FileImageLoader() {}
+        
+    private File selectImage(){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new FileNameExtensionFilter(null, ImageExtensions));
+        chooser.showOpenDialog(null);
+        return chooser.getSelectedFile();
+    }
+    
+    private void loadImagesOnFolder(String path){
         File folder= new File(path);
         files = folder.listFiles(new FilenameFilter() {
 
             @Override
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".jpg");
+                for (String extension : ImageExtensions)
+                    if (name.toLowerCase().endsWith("." + extension)) return true;
+                return false;
             }
         });
     }
 
     @Override
     public Image read() {
-        return image(0);
+        File image = selectImage();
+        loadImagesOnFolder(image.getParent());
+        int index = 0;
+        while (index < files.length-1 && !image.getAbsolutePath().equals(files[index].getAbsolutePath()))
+            index++;
+        return image(index);
     }
 
     private Image image(int index) {
