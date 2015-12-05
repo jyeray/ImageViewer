@@ -4,12 +4,19 @@ import imageviewer.control.Command;
 import imageviewer.control.NextCommand;
 import imageviewer.control.OpenCommand;
 import imageviewer.control.PrevCommand;
+import imageviewer.control.ResizeCommand;
+import imageviewer.control.ZoomInCommand;
+import imageviewer.control.ZoomOutCommand;
 import imageviewer.persistence.FileImageLoader;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JButton;
@@ -19,7 +26,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
-public class SwingApplication extends JFrame{
+public class SwingApplication extends JFrame implements MouseWheelListener {
     
     public static void main(String[] args) {
         new SwingApplication();
@@ -27,19 +34,34 @@ public class SwingApplication extends JFrame{
 
     private final Map<String,Command> commands= new HashMap<>();
     private final SwingImagePanel swingImagePanel;
-    private final FileImageLoader fileImageLoader;
     
     public SwingApplication() {
-        this.fileImageLoader = new FileImageLoader();
-        this.swingImagePanel = new SwingImagePanel(fileImageLoader.read());
+        this.swingImagePanel = new SwingImagePanel(new FileImageLoader().read());
         setCommands();
         deployUI();
+        this.addMouseWheelListener(this);
+        this.addComponentListener(new ComponentListener() {
+
+            @Override
+            public void componentResized(ComponentEvent e) {
+                commands.get("resize").execute();
+            }
+            @Override
+            public void componentMoved(ComponentEvent e) {}
+            @Override
+            public void componentShown(ComponentEvent e) {}
+            @Override
+            public void componentHidden(ComponentEvent e) {}
+        });
     }
 
     private void setCommands() {
         commands.put("next", new NextCommand(swingImagePanel));
         commands.put("prev", new PrevCommand(swingImagePanel));
-        commands.put("open", new OpenCommand(swingImagePanel,fileImageLoader));
+        commands.put("open", new OpenCommand(swingImagePanel,new FileImageLoader()));
+        commands.put("zoomIn", new ZoomInCommand(swingImagePanel));
+        commands.put("zoomOut", new ZoomOutCommand(swingImagePanel));
+        commands.put("resize", new ResizeCommand(swingImagePanel));
     }
 
     private void deployUI() {
@@ -111,4 +133,12 @@ public class SwingApplication extends JFrame{
         };
     }
 
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        if (e.getWheelRotation() < 0) {
+            commands.get("zoomIn").execute();
+        }else{
+            commands.get("zoomOut").execute();
+        }
+    }
 }

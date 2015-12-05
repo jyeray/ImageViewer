@@ -7,4 +7,7 @@ public interface ImageDisplay {
     public void nextImage();
     public void prevImage();
     public void show(Image image);
+    public void zoomIn();
+    public void zoomOut();
+    public void resize();
 }
