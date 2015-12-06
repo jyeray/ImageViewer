@@ -10,4 +10,6 @@ public interface ImageDisplay {
     public void zoomIn();
     public void zoomOut();
     public void resize();
+    public void rotateLeft();
+    public void rotateRight();
 }

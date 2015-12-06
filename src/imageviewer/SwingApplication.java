@@ -1,12 +1,6 @@
 package imageviewer;
 
-import imageviewer.control.Command;
-import imageviewer.control.NextCommand;
-import imageviewer.control.OpenCommand;
-import imageviewer.control.PrevCommand;
-import imageviewer.control.ResizeCommand;
-import imageviewer.control.ZoomInCommand;
-import imageviewer.control.ZoomOutCommand;
+import imageviewer.control.*;
 import imageviewer.persistence.FileImageLoader;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -62,6 +56,8 @@ public class SwingApplication extends JFrame implements MouseWheelListener {
         commands.put("zoomIn", new ZoomInCommand(swingImagePanel));
         commands.put("zoomOut", new ZoomOutCommand(swingImagePanel));
         commands.put("resize", new ResizeCommand(swingImagePanel));
+        commands.put("rotateLeft", new RotateLeftCommand(swingImagePanel));
+        commands.put("rotateRight", new RotateRightCommand(swingImagePanel));
     }
 
     private void deployUI() {
@@ -80,28 +76,32 @@ public class SwingApplication extends JFrame implements MouseWheelListener {
         JPanel panel = new JPanel(new FlowLayout());
         panel.add(prevButton());
         panel.add(nextButton());
+        panel.add(rotateLeftButton());
+        panel.add(rotateRightButton());
         return panel;
     }
 
     private JButton prevButton() {
         JButton button = new JButton("<");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                commands.get("prev").execute();
-            }
-        });
+        button.addActionListener(execute("prev"));
         return button;
     }
     
     private JButton nextButton() {
         JButton button = new JButton(">");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                commands.get("next").execute();
-            }
-        });
+        button.addActionListener(execute("next"));
+        return button;
+    }
+    
+    private JButton rotateLeftButton() {
+        JButton button = new JButton("↻");
+        button.addActionListener(execute("rotateLeft"));
+        return button;
+    }
+
+    private JButton rotateRightButton() {
+        JButton button = new JButton("↺");
+        button.addActionListener(execute("rotateRight"));
         return button;
     }
 
