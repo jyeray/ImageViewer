@@ -9,6 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.HashMap;
@@ -20,19 +23,23 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
-public class SwingApplication extends JFrame implements MouseWheelListener {
+public class SwingApplication extends JFrame implements MouseWheelListener, MouseMotionListener, MouseListener{
     
     public static void main(String[] args) {
-        new SwingApplication();
+        new SwingApplication(args);
     }
 
     private final Map<String,Command> commands= new HashMap<>();
     private final SwingImagePanel swingImagePanel;
     
-    public SwingApplication() {
-        this.swingImagePanel = new SwingImagePanel(new FileImageLoader().read());
-        setCommands();
+    public SwingApplication(String[] args) {
+        if (args.length != 0) {
+            this.swingImagePanel = new SwingImagePanel(new FileImageLoader().readThis(args[0]));
+        } else {
+            this.swingImagePanel = new SwingImagePanel();
+        }
         deployUI();
+        setCommands();
         this.addMouseWheelListener(this);
         this.addComponentListener(new ComponentListener() {
 
@@ -47,6 +54,8 @@ public class SwingApplication extends JFrame implements MouseWheelListener {
             @Override
             public void componentHidden(ComponentEvent e) {}
         });
+        this.addMouseMotionListener(this);
+        this.addMouseListener(this);
     }
 
     private void setCommands() {
@@ -141,4 +150,29 @@ public class SwingApplication extends JFrame implements MouseWheelListener {
             commands.get("zoomOut").execute();
         }
     }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        swingImagePanel.setDrag(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {}
+
+    @Override
+    public void mouseClicked(MouseEvent e) {}
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        swingImagePanel.setRefPoint(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {}
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
 }

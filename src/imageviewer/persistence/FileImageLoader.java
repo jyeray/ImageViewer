@@ -11,7 +11,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class FileImageLoader implements ImageLoader{
 
     private File[] files;
-    private final static String[] ImageExtensions = {"jpg","jpeg","gif","png"};
+    private final static String[] ImageExtensions = {"jpg","jpeg","png"};
 
     public FileImageLoader() {}
         
@@ -38,6 +38,15 @@ public class FileImageLoader implements ImageLoader{
     @Override
     public Image read() {
         File image = selectImage();
+        loadImagesOnFolder(image.getParent());
+        int index = 0;
+        while (index < files.length-1 && !image.getAbsolutePath().equals(files[index].getAbsolutePath()))
+            index++;
+        return image(index);
+    }
+    
+    public Image readThis(String imagePath){
+        File image = new File (imagePath);
         loadImagesOnFolder(image.getParent());
         int index = 0;
         while (index < files.length-1 && !image.getAbsolutePath().equals(files[index].getAbsolutePath()))

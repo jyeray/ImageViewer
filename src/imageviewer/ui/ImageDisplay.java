@@ -12,4 +12,5 @@ public interface ImageDisplay {
     public void resize();
     public void rotateLeft();
     public void rotateRight();
+    public void setDrag(int x,int y);
 }
